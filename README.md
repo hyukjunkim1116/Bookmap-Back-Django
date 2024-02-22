@@ -1,8 +1,14 @@
-# FoodMap-Django
+# FoodMap
 
-### Installation
+## 배포 주소
 
-##### 1. Set-ExecutionPolicy RemoteSigned
+## 팀 소개
+
+## 프로젝트 소개
+
+## 시작 가이드
+
+##### 1. Set-ExecutionPolicy RemoteSigned(Using Window)
 
 ##### 2. 파이썬 3.12.1 설치(파이썬 경로 체크)
 
@@ -26,8 +32,48 @@
 
 ##### docker run --rm -p 6379:6379 redis:7
 
+### Requirements
+
+설치 요구 사항:
+
+- [Python](https://www.python.org/)
+
+---
+
+## Stacks 🐈
+
+### Environment
+
+![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-007ACC?style=for-the-badge&logo=Visual%20Studio%20Code&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=Git&logoColor=white)
+![Github](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white)
+
+### Config
+
+### Development
+
+### Communication
+
+![Notion](https://denim-knot-470.notion.site/055b7ca4a10142f8a5a049d941b84455?v=dd168a4580ad4328afa9d36a5da7c49c&pvs=4)
+
+---
+
+## 화면 구성 📺
+
+---
+
+## 주요 기능 📦
+
+---
+
+## 아키텍쳐
+
+### 디렉토리 구조
+
+```
+
+```
+
 ## API 명세
 
 ### [API 명세](https://denim-knot-470.notion.site/055b7ca4a10142f8a5a049d941b84455?v=dd168a4580ad4328afa9d36a5da7c49c&pvs=4)
-
-### https://channels.readthedocs.io/en/stable/topics/consumers.html
