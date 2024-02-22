@@ -32,9 +32,9 @@
 
 ##### docker run --rm -p 6379:6379 redis:7
 
-### Requirements
+---
 
-설치 요구 사항:
+## Requirements
 
 - [Python](https://www.python.org/)
 
