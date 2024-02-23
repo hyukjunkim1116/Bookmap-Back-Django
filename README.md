@@ -58,7 +58,7 @@
 
 ### Communication
 
-![Notion](https://denim-knot-470.notion.site/055b7ca4a10142f8a5a049d941b84455?v=dd168a4580ad4328afa9d36a5da7c49c&pvs=4)
+<img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white">
 
 ---
 
