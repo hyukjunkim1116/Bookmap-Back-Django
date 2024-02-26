@@ -386,6 +386,7 @@ class FindPasswordView(APIView):
     def put(self, request):
         try:
             user_email = request.data
+            print(user_email)
             user = User.objects.get(email=user_email)
             if user:
                 characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
