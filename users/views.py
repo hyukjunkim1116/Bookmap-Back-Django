@@ -314,7 +314,9 @@ class UserDetailView(APIView):
 
     def put(self, request, uid):
         # """유저 프로필 수정"""
+        print("asdas")
         user = get_object_or_404(User, id=uid)
+        print(request.data)
         if request.user.id == uid:
             serializer = UserSerializer(
                 user,
@@ -324,6 +326,7 @@ class UserDetailView(APIView):
             )
             if serializer.is_valid():
                 serializer.save()
+                print(serializer.data)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
