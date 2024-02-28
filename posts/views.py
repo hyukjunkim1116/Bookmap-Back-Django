@@ -15,6 +15,50 @@ import datetime
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
+class PostImageReactView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_s3_client(self):
+        # S3 클라이언트 생성 및 반환
+        return boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_REGION,
+        )
+
+    def post(self, request, post_id):
+        print("asdasdasd")
+        unique_id = uuid.uuid4()
+        s3_client = self.get_s3_client()
+        image_file = request.data["image"]
+
+        s3_client.upload_fileobj(
+            image_file,
+            settings.AWS_STORAGE_BUCKET_NAME,
+            f"posts/{unique_id}{image_file.name}",
+        )
+        # S3로부터 이미지의 URL 받아오기
+        image_url = f"https://{settings.AWS_S3_CUSTOM_DOMAIN}/posts/{unique_id}{image_file.name}"
+        post = get_object_or_404(Post, id=post_id)
+        post.image = image_url
+        post.save()
+        return Response(image_url, status=status.HTTP_200_OK)
+
+    def delete(self, request, post_id):
+        s3_client = self.get_s3_client()
+        # 폴더 안의 객체 리스트업
+        url = request.GET.get("url")
+
+        s3_client.delete_object(
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=url.split("m/")[-1]
+        )
+        post = get_object_or_404(Post, id=post_id)
+        post.image = None
+        post.save()
+        return Response({"good"}, status=status.HTTP_200_OK)
+
+
 class PostImageView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -51,8 +95,6 @@ class PostImageView(generics.ListCreateAPIView):
             Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=url.split("m/")[-1]
         )
         return Response({"good"}, status=status.HTTP_200_OK)
-
-    # https://foodmapbucket.s3.ap-northeast-2.amazonaws.com/posts/56c0eb2b-3161-4e0b-a8fd-3c96d7b6113bblob
 
 
 class PostView(generics.ListCreateAPIView):
@@ -99,6 +141,7 @@ class PostDetailView(APIView):
             post,
             context={"request": request},
         )
+        print(serializer.data)
         response = Response(serializer.data, status=status.HTTP_200_OK)
         # 쿠키 읽기 & 생성
         if request.COOKIES.get("hit") is not None:  # 쿠키에 hit 값이 이미 있을 경우

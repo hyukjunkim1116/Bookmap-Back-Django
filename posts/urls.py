@@ -14,6 +14,11 @@ urlpatterns = [
         name="post_image",
     ),
     path(
+        "image/<int:post_id>",
+        views.PostImageReactView.as_view(),
+        name="only_react_image",
+    ),
+    path(
         "<int:post_id>",
         views.PostDetailView.as_view(),
         name="post_detail",

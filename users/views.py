@@ -93,6 +93,7 @@ class UserImageView(APIView):
     def patch(self, request, uid):
         unique_id = uuid.uuid4()
         user = get_object_or_404(User, id=uid)
+
         if request.user.id == uid:
             s3_client = self.get_s3_client()
             if user.image:
@@ -104,7 +105,7 @@ class UserImageView(APIView):
                 except Exception as e:
                     print(e)
             image_file = request.data["image"]
-
+            print(image_file)
             s3_client.upload_fileobj(
                 image_file,
                 settings.AWS_STORAGE_BUCKET_NAME,
