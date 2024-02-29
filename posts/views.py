@@ -118,6 +118,7 @@ class PostView(generics.ListCreateAPIView):
 
             case _:
                 queryset = queryset.order_by("-updated_at")
+        print(queryset, "123")
         return queryset
 
     def post(self, request):

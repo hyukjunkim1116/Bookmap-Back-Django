@@ -44,7 +44,7 @@ AWS_DEFAULT_ACL = None
 
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=100),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10000),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=100000),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
