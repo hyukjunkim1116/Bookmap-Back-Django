@@ -1,6 +1,5 @@
 # FoodMap
 
-- [프론트엔드 바로가기](https://github.com/hyukjunkim1116/foodmap-Vue3)
 - [프론트엔드(React) 바로가기](https://github.com/hyukjunkim1116/foodmap-react)
 
 ## 배포 주소
