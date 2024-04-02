@@ -118,7 +118,6 @@ class PostView(generics.ListCreateAPIView):
 
             case _:
                 queryset = queryset.order_by("-updated_at")
-        print(queryset, "123")
         return queryset
 
     def post(self, request):
@@ -142,7 +141,6 @@ class PostDetailView(APIView):
             post,
             context={"request": request},
         )
-        print(serializer.data)
         response = Response(serializer.data, status=status.HTTP_200_OK)
         # 쿠키 읽기 & 생성
         if request.COOKIES.get("hit") is not None:  # 쿠키에 hit 값이 이미 있을 경우

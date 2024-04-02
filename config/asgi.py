@@ -1,10 +1,7 @@
 import os
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from channels.routing import ProtocolTypeRouter
 from django.core.asgi import get_asgi_application
-from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.security.websocket import AllowedHostsOriginValidator
 from . import urls
 from webchat.middleware import QueryAuthMiddleware
 

@@ -24,10 +24,7 @@ def get_s3_client():
 
 @util.close_old_connections
 def delete_old_job_executions(max_age=1):
-
     DjangoJobExecution.objects.delete_old_job_executions(max_age)
-
-
 def delete_post_images():
 
     s3_client = get_s3_client()
