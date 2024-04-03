@@ -57,6 +57,11 @@ class RepetitiveUsername(APIException):
     default_detail = "이미 있는 이름입니다."
 
 
+class BookFetchFail(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "책 정보를 불러오지 못했습니다."
+
+
 class InvalidField(APIException):
     def __init__(self, default_detail):
         self.detail = default_detail

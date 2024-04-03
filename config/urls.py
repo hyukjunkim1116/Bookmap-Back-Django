@@ -13,6 +13,7 @@ urlpatterns = [
     path("api/posts/", include("posts.urls")),
     path("api/reports/", include("reports.urls")),
     path("api/payments/", include("payments.urls")),
+    path("api/books/", include("books.urls")),
     path("api/notification/<int:not_id>/", NotificationView.as_view()),
 ] + router.urls
 

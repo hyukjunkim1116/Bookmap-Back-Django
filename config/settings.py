@@ -21,6 +21,8 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_S3_CUSTOM_DOMAIN = "%s.s3.%s.amazonaws.com" % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
 STATIC_URL = "http://%s/static/" % AWS_S3_CUSTOM_DOMAIN
+NAVER_BOOK_CLIENT_ID = os.environ.get("NAVER_BOOK_CLIENT_ID")
+NAVER_BOOK_SECRET = os.environ.get("NAVER_BOOK_SECRET")
 DEBUG = True
 ALLOWED_HOSTS = [
     "localhost",
@@ -45,7 +47,7 @@ AWS_DEFAULT_ACL = None
 
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10000),
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=100000),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
@@ -77,6 +79,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "users",
     "posts",
+    "books",
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
