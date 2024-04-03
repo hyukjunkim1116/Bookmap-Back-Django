@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from .serializers import ReportSerializer
 from posts.models import Post
+from config.custom_exception import InvalidRequest
 
 
 class ReportView(APIView):
@@ -14,10 +15,9 @@ class ReportView(APIView):
             data=request.data,
         )
         if serializer.is_valid():
-
             serializer.save(
                 reporting_user=request.user, reported_user=post.author, post=post
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise InvalidRequest

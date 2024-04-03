@@ -4,6 +4,7 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Payment
+from config import custom_exception
 
 
 class PaymentsView(generics.ListCreateAPIView):
@@ -19,8 +20,7 @@ class PaymentsView(generics.ListCreateAPIView):
     def post(self, request):
         serializer = PaymentsSerializer(data=request.data)
         if serializer.is_valid():
-            # buyer=request.user
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise custom_exception.InvalidRequest

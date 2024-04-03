@@ -13,6 +13,7 @@ from django.conf import settings
 from webchat.models import Notification
 import datetime
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from config import custom_exception
 
 
 class PostImageReactView(generics.ListCreateAPIView):
@@ -28,7 +29,7 @@ class PostImageReactView(generics.ListCreateAPIView):
         )
 
     def post(self, request, post_id):
-        print("asdasdasd")
+      
         unique_id = uuid.uuid4()
         s3_client = self.get_s3_client()
         image_file = request.data["image"]
@@ -47,7 +48,7 @@ class PostImageReactView(generics.ListCreateAPIView):
 
     def delete(self, request, post_id):
         s3_client = self.get_s3_client()
-        # 폴더 안의 객체 리스트업
+    
         url = request.GET.get("url")
 
         s3_client.delete_object(
@@ -56,14 +57,14 @@ class PostImageReactView(generics.ListCreateAPIView):
         post = get_object_or_404(Post, id=post_id)
         post.image = None
         post.save()
-        return Response({"good"}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class PostImageView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_s3_client(self):
-        # S3 클라이언트 생성 및 반환
+      
         return boto3.client(
             "s3",
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -94,7 +95,7 @@ class PostImageView(generics.ListCreateAPIView):
         s3_client.delete_object(
             Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=url.split("m/")[-1]
         )
-        return Response({"good"}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class PostView(generics.ListCreateAPIView):
@@ -128,7 +129,7 @@ class PostView(generics.ListCreateAPIView):
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise custom_exception.InvalidRequest
 
 
 class PostDetailView(APIView):
@@ -170,7 +171,7 @@ class PostDetailView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise custom_exception.InvalidRequest
 
     def delete(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
@@ -180,10 +181,7 @@ class PostDetailView(APIView):
                 {"message": "게시글이 삭제되었습니다"},
                 status=status.HTTP_204_NO_CONTENT,
             )
-        return Response(
-            {"error": "본인이 작성한 게시글만 삭제할수 있습니다"},
-            status=status.HTTP_403_FORBIDDEN,
-        )
+        raise custom_exception.ForbiddenPost
 
 
 class CommentView(generics.ListCreateAPIView):
@@ -203,7 +201,7 @@ class CommentView(generics.ListCreateAPIView):
         if serializer.is_valid():
             serializer.save(author=request.user, post_id=post_id)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise custom_exception.InvalidRequest
 
 
 class CommentDetailView(APIView):
@@ -219,10 +217,7 @@ class CommentDetailView(APIView):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(
-            {"error": "본인이 작성한 댓글만 수정할수 있습니다"},
-            status=status.HTTP_403_FORBIDDEN,
-        )
+        raise custom_exception.ForbiddenComment
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
@@ -230,9 +225,7 @@ class CommentDetailView(APIView):
         if request.user == comment.author:
             comment.delete()
             return Response("댓글이 삭제되었습니다", status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            "본인이 작성한 댓글만 삭제할수 있습니다", status=status.HTTP_403_FORBIDDEN
-        )
+        raise custom_exception.ForbiddenComment
 
 
 class PostLikeView(APIView):

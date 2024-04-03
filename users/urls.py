@@ -24,5 +24,5 @@ urlpatterns = [
     path("find-password/", views.FindPasswordView.as_view(), name="find_password"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("<int:uid>/", views.UserDetailView.as_view(), name="user_detail"),
-    path("<int:uid>/image", views.UserImageView.as_view(), name="user_image"),
+    path("<int:uid>/image/", views.UserImageView.as_view(), name="user_image"),
 ]

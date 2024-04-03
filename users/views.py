@@ -1,6 +1,7 @@
 import random
 import boto3
 import uuid
+from django.forms import ValidationError
 import requests
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import status
@@ -16,7 +17,6 @@ from django.contrib.auth.hashers import make_password
 from users.models import User
 from users.validators import UserValidator
 from django.contrib.auth import authenticate
-from rest_framework.exceptions import PermissionDenied
 from django.conf import settings
 from django.db import transaction
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -26,6 +26,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from users.email_tokens import account_activation_token
 from .send_kakao_message import kakao_message
+from config import custom_exception
 
 
 class UserSignUpVerifyView(APIView):
@@ -57,10 +58,7 @@ class UserSignUpVerifyView(APIView):
                     {"message": "이메일 전송 완료!"}, status=status.HTTP_200_OK
                 )
         except User.DoesNotExist:
-            return Response(
-                {"error": "해당 이메일에 일치하는 사용자가 없습니다!"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise custom_exception.EmailNotFound
 
 
 class UserEmailPermitView(APIView):
@@ -73,9 +71,9 @@ class UserEmailPermitView(APIView):
                 user.save()
 
                 return redirect(f"{settings.FRONT_BASE_URL}/verify/{token}")
-            return Response({"error": "AUTH_FAIL"}, status=status.HTTP_400_BAD_REQUEST)
+            raise custom_exception.InvalidRequest
         except KeyError:
-            return Response({"error": "KEY_ERROR"}, status=status.HTTP_400_BAD_REQUEST)
+            raise custom_exception.InvalidRequest
 
 
 class UserImageView(APIView):
@@ -117,7 +115,7 @@ class UserImageView(APIView):
 
             return Response({"image": image_url}, status=status.HTTP_200_OK)
         else:
-            raise PermissionDenied
+            raise custom_exception.CustomPermissionDenied
 
 
 class UserView(APIView):
@@ -133,26 +131,12 @@ class UserView(APIView):
         password = request.data.get("password")
         password2 = request.data.get("passwordConfirm")
         username = request.data.get("username")
-
-        required_fields_errors = UserValidator.validate_required_fields(
-            self, email=email, password=password, password2=password2, username=username
-        )
-        if required_fields_errors:
-            return required_fields_errors
-        # 비밀번호 검증
-        password_validation_error = UserValidator.validate_password(self, password)
-        if password_validation_error:
-            return password_validation_error
-        # 비밀번호 확인 검증
-        password_match_error = UserValidator.validate_passwords_match(
-            self, password, password2
-        )
-        if password_match_error:
-            return password_match_error
-        # 유저 중복 검사
-        unique_user_error = UserValidator.validate_unique_user(self, email, username)
-        if unique_user_error:
-            return unique_user_error
+        try:
+            UserValidator.validate_password(self, password)
+            UserValidator.validate_passwords_match(self, password, password2)
+            UserValidator.validate_unique_user(self, email, username)
+        except ValidationError as e:
+            raise custom_exception.InvalidField(default_detail=e.message)
 
         serializer = UserSerializer(
             data=request.data,
@@ -162,10 +146,7 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise custom_exception.InvalidRequest
 
 
 class KakaoLogIn(APIView):
@@ -226,10 +207,7 @@ class KakaoLogIn(APIView):
                                 status=status.HTTP_400_BAD_REQUEST,
                             )
                     else:
-                        return Response(
-                            {"error": "이미 일반 회원으로 로그인 한 계정입니다"},
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
+                        raise custom_exception.AlreadySignUpWithNormal
             except User.DoesNotExist:
                 user = User.objects.create(
                     email=kakao_account.get("email"),
@@ -251,7 +229,7 @@ class KakaoLogIn(APIView):
 
                     return Response(token, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(e, status=status.HTTP_400_BAD_REQUEST)
+            raise custom_exception.InvalidRequest
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -260,29 +238,18 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request):
         email = request.data.get("email")
         password = request.data.get("password")
-        required_fields_errors = UserValidator.validate_required_fields(
-            self, email=email, password=password, password2=password, username="None"
-        )
-        if required_fields_errors:
-            return required_fields_errors
-
         user = authenticate(
             request,
             email=email,
             password=password,
         )
         if user:
-
             serializer = CustomTokenObtainPairSerializer(data=request.data)
             if serializer.is_valid():
                 token = serializer.validated_data
-
                 return Response(token, status=status.HTTP_200_OK)
         else:
-            return Response(
-                {"error": "비밀번호가 틀렸습니다."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise custom_exception.LoginFail
 
 
 class UserDetailView(APIView):
@@ -314,10 +281,9 @@ class UserDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, uid):
-        # """유저 프로필 수정"""
-        print("asdas")
+
         user = get_object_or_404(User, id=uid)
-        print(request.data)
+
         if request.user.id == uid:
             serializer = UserSerializer(
                 user,
@@ -330,9 +296,9 @@ class UserDetailView(APIView):
                 print(serializer.data)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                raise custom_exception.InvalidRequest
         else:
-            raise PermissionDenied
+            raise custom_exception.CustomPermissionDenied
 
     def delete(self, request, uid):
         user = get_object_or_404(User, id=uid)
@@ -357,7 +323,7 @@ class UserDetailView(APIView):
             user.delete()
             return Response({"message": "삭제되었습니다!"}, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "삭제 실패!"}, status=status.HTTP_403_FORBIDDEN)
+            raise custom_exception.CustomPermissionDenied
 
 
 class ChangePasswordView(APIView):
@@ -369,10 +335,7 @@ class ChangePasswordView(APIView):
         new_password = request.data.get("newPassword")
         new_password_confirm = request.data.get("newPasswordConfirm")
         if new_password != new_password_confirm:
-            return Response(
-                {"error": "비밀번호 확인이 맞지 않습니다"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise custom_exception.InvalidPassword
         if user.check_password(old_password):
             user.set_password(new_password)
             user.save()
@@ -380,7 +343,9 @@ class ChangePasswordView(APIView):
                 {"message": "비밀번호가 변경되었습니다!"}, status=status.HTTP_200_OK
             )
         else:
-            return Response("auth/wrong-password", status=status.HTTP_400_BAD_REQUEST)
+            raise custom_exception.BadPasswordRequest(
+                default_detail="비밀번호 양식을 지켜주세요."
+            )
 
 
 class FindPasswordView(APIView):
@@ -399,4 +364,4 @@ class FindPasswordView(APIView):
                     status=status.HTTP_200_OK,
                 )
         except User.DoesNotExist:
-            return Response("auth/user-not-found", status=status.HTTP_400_BAD_REQUEST)
+            raise custom_exception.UserNotFound
