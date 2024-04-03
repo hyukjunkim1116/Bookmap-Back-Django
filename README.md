@@ -1,4 +1,4 @@
-# FoodMap
+# BookMap
 
 - [프론트엔드(React) 바로가기](https://github.com/hyukjunkim1116/foodmap-react)
 
