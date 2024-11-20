@@ -2,13 +2,13 @@
 
 - [프론트엔드(React) 바로가기](https://github.com/hyukjunkim1116/foodmap-react)
 
-## 배포 주소
-
 ## 팀 소개
 
 - 프론트엔드(김혁준)
 
 ## 프로젝트 소개
+
+BookMap은 책에 관심이 많은 유저들을 대상으로한 커뮤니티 사이트입니다. 게시글 작성,수정,삭제 및 댓글을 통해 다른 유저들과 소통할 수 있으며 책 검색 기능을 탑재하여 원하는 책을 검색해 볼 수 있습니다. 또한 검색한 책이 어떤 서점에 몇권 있는지 확인할 수 있습니다.
 
 ## 시작 가이드
 
@@ -30,12 +30,6 @@
 
 ##### 9. python manage.py runserver
 
-##### pip list --format=freeze > requirements.txt
-
-##### django-admin startproject config .
-
-##### docker run --rm -p 6379:6379 redis:7
-
 ---
 
 ## Requirements
@@ -52,17 +46,9 @@
 ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=Git&logoColor=white)
 ![Github](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white)
 
-### Config
-
-### Development
-
 ### Communication
 
 <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white">
-
----
-
-## 화면 구성 📺
 
 ---
 
